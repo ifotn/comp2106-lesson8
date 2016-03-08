@@ -2,4 +2,4 @@
 
 Adding Delete functionality
 
-Setting up Passport for Authenticationi
+Setting up Passport for Authentication
