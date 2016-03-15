@@ -7,9 +7,16 @@ var bodyParser = require('body-parser');
 
 var mongoose = require('mongoose');
 
+// auth packages
+var passport = require('passport');
+var session = require('express-session');
+var flash = require('connect-flash');
+var localStrategy = require('passport-local').Strategy;
+
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var articles = require('./routes/articles');
+var auth = require('./routes/auth');
 
 var app = express();
 
@@ -25,9 +32,31 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// enable flash for showing messages
+app.use(flash());
+
+// passport config section
+app.use(session({
+  secret: 'lesson8 auth',
+  resave: true,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// use the Account model we built
+var Account = require('./models/account');
+passport.use(Account.createStrategy());
+
+// methods for accessing the session data
+passport.serializeUser(Account.serializeUser);
+passport.deserializeUser(Account.deserializeUser);
+
 app.use('/', routes);
 app.use('/users', users);
 app.use('/articles', articles);
+app.use('/auth', auth);
 
 // db connection
 var db = mongoose.connection;
